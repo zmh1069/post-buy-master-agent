@@ -1,0 +1,29 @@
+{
+  "name": "housecanary-downloader",
+  "version": "1.0.0",
+  "description": "Automated downloader for HouseCanary home value reports",
+  "main": "housecanary-downloader.js",
+  "scripts": {
+    "start": "node housecanary-downloader-final.js",
+    "start:v2": "node housecanary-downloader-v2.js",
+    "start:v3": "node housecanary-downloader-v3.js",
+    "start:v4": "node housecanary-downloader-v4.js",
+    "final": "node housecanary-downloader-final.js",
+    "manual": "node housecanary-manual-assist.js",
+    "setup": "node setup-supabase.js",
+    "setup:api": "node monitor-supabase-api.js",
+    "monitor": "node monitor-property-changes.js",
+    "monitor:supabase": "node monitor-property-changes-supabase.js",
+    "monitor:api": "node monitor-supabase-api.js",
+    "monitor:state": "node monitor-with-state.js",
+    "test:spreadsheet": "node test-spreadsheet.js",
+    "update:manual": "node manual-update-spreadsheet.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "mysql2": "^3.14.1",
+    "pg": "^8.16.1",
+    "puppeteer": "^22.8.2",
+    "xlsx": "^0.18.5"
+  }
+}
