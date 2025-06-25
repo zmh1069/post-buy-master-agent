@@ -203,16 +203,21 @@ async function runHouseCanaryAgent(address) {
     console.log('Step 3: Entering credentials...');
     const config = getConfig();
     
+    // Validate credentials are available
+    if (!config.HOUSECANARY_EMAIL || !config.HOUSECANARY_PASSWORD) {
+      throw new Error('❌ HouseCanary credentials not found. Please set HOUSECANARY_EMAIL and HOUSECANARY_PASSWORD in GitHub Secrets or env.txt');
+    }
+    
     const emailInput = await page.$('input[type="email"], input[name="email"], input[id*="email"], input[placeholder*="email" i]');
     if (emailInput) {
       await emailInput.click();
-      await emailInput.type(config.HOUSECANARY_EMAIL, { delay: 100 });
+      await emailInput.type(String(config.HOUSECANARY_EMAIL), { delay: 100 });
     }
 
     const passwordInput = await page.$('input[type="password"]');
     if (passwordInput) {
       await passwordInput.click();
-      await passwordInput.type(config.HOUSECANARY_PASSWORD, { delay: 100 });
+      await passwordInput.type(String(config.HOUSECANARY_PASSWORD), { delay: 100 });
     }
 
     console.log('Step 4: Submitting login...');
