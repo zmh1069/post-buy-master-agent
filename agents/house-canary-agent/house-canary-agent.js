@@ -1,9 +1,9 @@
-require('dotenv').config({ path: require('path').join(__dirname, 'env.txt') });
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
 const XLSX = require('xlsx');
 const { createClient } = require('@supabase/supabase-js');
+const { getConfig } = require('../shared-config');
 
 function parseAddress(fullAddress) {
   if (!fullAddress) return { streetAddress: '', zipcode: '' };
@@ -30,24 +30,7 @@ function parseAddress(fullAddress) {
   return { streetAddress, zipcode };
 }
 
-// Function to parse the simple key-value format of env.txt
-function parseEnvFile(filePath) {
-    try {
-        const content = fs.readFileSync(filePath, 'utf-8');
-        const lines = content.split('\n');
-        const config = {};
-        for (const line of lines) {
-            const parts = line.split('=');
-            if (parts.length === 2) {
-                config[parts[0].trim()] = parts[1].trim();
-            }
-        }
-        return config;
-    } catch (error) {
-        console.error('Error parsing env.txt:', error.message);
-        return {};
-    }
-}
+// Using shared configuration module that supports both env.txt and environment variables
 
 // Sanitize address for filename
 function sanitizeFilename(str) {
@@ -218,16 +201,18 @@ async function runHouseCanaryAgent(address) {
     await new Promise(resolve => setTimeout(resolve, 8000));
 
     console.log('Step 3: Entering credentials...');
+    const config = getConfig();
+    
     const emailInput = await page.$('input[type="email"], input[name="email"], input[id*="email"], input[placeholder*="email" i]');
     if (emailInput) {
       await emailInput.click();
-      await emailInput.type('sean@scholasticcapital.com', { delay: 100 });
+      await emailInput.type(config.HOUSECANARY_EMAIL, { delay: 100 });
     }
 
     const passwordInput = await page.$('input[type="password"]');
     if (passwordInput) {
       await passwordInput.click();
-      await passwordInput.type('mzn-WQB4qgv4yme5dtq', { delay: 100 });
+      await passwordInput.type(config.HOUSECANARY_PASSWORD, { delay: 100 });
     }
 
     console.log('Step 4: Submitting login...');
@@ -474,8 +459,7 @@ async function runHouseCanaryAgent(address) {
     await new Promise(resolve => setTimeout(resolve, 3000));
 
     console.log('Step 12: Uploading report to Supabase...');
-    const envConfig = parseEnvFile(path.join(__dirname, '..', '..', 'env.txt'));
-    const supabase = createClient(envConfig.SUPABASE_URL, envConfig.SUPABASE_SERVICE_KEY);
+    const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_KEY);
     const fileContent = fs.readFileSync(downloadPath);
     const fileName = `report_${new Date().toISOString().replace(/[:.]/g, '-')}.xlsx`;
     const { error: uploadError } = await supabase.storage

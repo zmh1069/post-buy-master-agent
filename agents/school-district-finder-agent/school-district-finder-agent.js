@@ -4,25 +4,9 @@
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
+const { getConfig } = require('../shared-config');
 
-// Function to parse the simple key-value format of env.txt
-function parseEnvFile(filePath) {
-    try {
-        const content = fs.readFileSync(filePath, 'utf-8');
-        const lines = content.split('\n');
-        const config = {};
-        for (const line of lines) {
-            const parts = line.split('=');
-            if (parts.length === 2) {
-                config[parts[0].trim()] = parts[1].trim();
-            }
-        }
-        return config;
-    } catch (error) {
-        console.error('Error parsing env.txt:', error.message);
-        return {};
-    }
-}
+// Using shared configuration module that supports both env.txt and environment variables
 
 async function schoolDistrictWorkflow(address) {
   const puppeteer = require('puppeteer');
@@ -150,8 +134,8 @@ async function schoolDistrictWorkflow(address) {
     
     // Upload to Supabase Storage
     console.log('Step 6: Uploading screenshot to Supabase...');
-    const envConfig = parseEnvFile(path.join(__dirname, '..', '..', 'env.txt'));
-    const supabase = createClient(envConfig.SUPABASE_URL, envConfig.SUPABASE_SERVICE_KEY);
+    const config = getConfig();
+    const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_KEY);
     const fileContent = fs.readFileSync(screenshotPath);
     const fileName = `school_district_${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
     const { error: uploadError } = await supabase.storage

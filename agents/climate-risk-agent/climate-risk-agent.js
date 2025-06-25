@@ -7,25 +7,9 @@ const path = require('path');
 const puppeteer = require('puppeteer');
 const Tesseract = require('tesseract.js');
 const sharp = require('sharp');
+const { getConfig } = require('../shared-config');
 
-// Function to parse the simple key-value format of env.txt
-function parseEnvFile(filePath) {
-    try {
-        const content = fs.readFileSync(filePath, 'utf-8');
-        const lines = content.split('\n');
-        const config = {};
-        for (const line of lines) {
-            const parts = line.split('=');
-            if (parts.length === 2) {
-                config[parts[0].trim()] = parts[1].trim();
-            }
-        }
-        return config;
-    } catch (error) {
-        console.error('Error parsing env.txt:', error.message);
-        return {};
-    }
-}
+// Using shared configuration module that supports both env.txt and environment variables
 
 // Function to extract risk factor data from OCR text
 function extractRiskFactors(ocrText) {
@@ -122,13 +106,8 @@ async function updateSupabaseWithRiskFactors(address, riskFactors) {
     try {
         console.log('Step 8: Updating Supabase with risk factor data...');
         
-        // Load environment variables
-        const envPath = path.join(__dirname, '../../env.txt');
-        const config = parseEnvFile(envPath);
-        
-        if (!config.SUPABASE_URL || !config.SUPABASE_SERVICE_KEY) {
-            throw new Error('Missing Supabase configuration');
-        }
+        // Load configuration (supports both env.txt and environment variables)
+        const config = getConfig();
         
         // Initialize Supabase client
         const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_KEY);
