@@ -1,0 +1,25 @@
+{
+  "name": "climate-risk-agent",
+  "version": "1.0.0",
+  "description": "Climate Risk Agent for automated climate risk assessment",
+  "main": "climate-risk-agent.js",
+  "scripts": {
+    "start": "node climate-risk-agent.js",
+    "test": "node climate-risk-agent.js \"123 Main St, City, State 12345\""
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0",
+    "puppeteer": "^21.0.0",
+    "sharp": "^0.34.2",
+    "tesseract.js": "^6.0.1"
+  },
+  "keywords": [
+    "climate",
+    "risk",
+    "assessment",
+    "automation",
+    "puppeteer"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

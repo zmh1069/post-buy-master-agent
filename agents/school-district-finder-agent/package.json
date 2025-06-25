@@ -1,0 +1,10 @@
+{
+  "name": "school-district-finder-agent",
+  "version": "0.1.0",
+  "main": "school-district-finder-agent.js",
+  "description": "Agent for school district lookup, to be triggered by Post-Buy Master Agent.",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "puppeteer": "^22.8.2"
+  }
+} 
