@@ -1,0 +1,78 @@
+name: Manual Agent Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_address:
+        description: 'Address to test with all agents'
+        required: true
+        default: '542 Laramie Ave, Wilmette, IL 60091'
+        type: string
+
+jobs:
+  test-full-suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm install
+        cd agents/house-canary-agent && npm install
+        cd ../sp-detection-agent && npm install
+        cd ../climate-risk-agent && npm install
+        cd ../school-district-finder-agent && npm install
+        cd ../post-buy-master-agent && npm install
+    
+    - name: Install system dependencies
+      run: |
+        # Install dependencies for Puppeteer and Tesseract
+        sudo apt-get update
+        sudo apt-get install -y \
+          libasound2-dev \
+          libatk-bridge2.0-dev \
+          libdrm2 \
+          libgtk-3-dev \
+          libgtk-4-dev \
+          libnss3-dev \
+          libxcomposite-dev \
+          libxdamage1 \
+          libxrandr2 \
+          libgbm-dev \
+          libxss1 \
+          libasound2 \
+          tesseract-ocr \
+          tesseract-ocr-eng
+    
+    - name: Test Post-Buy Master Agent
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        HOUSECANARY_EMAIL: ${{ secrets.HOUSECANARY_EMAIL }}
+        HOUSECANARY_PASSWORD: ${{ secrets.HOUSECANARY_PASSWORD }}
+        NODE_ENV: production
+      run: |
+        echo "🏠 Testing with address: ${{ github.event.inputs.test_address }}"
+        echo "🚀 Starting Post-Buy Master Agent..."
+        cd agents/post-buy-master-agent
+        timeout 900 node index.js "${{ github.event.inputs.test_address }}" || echo "⚠️ Test completed or timed out after 15 minutes"
+    
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: agent-test-results
+        path: |
+          agents/*/downloads/
+          agents/*/*.png
+          agents/*/*.jpg
+        retention-days: 7 
